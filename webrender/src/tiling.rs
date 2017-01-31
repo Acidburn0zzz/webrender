@@ -2427,9 +2427,11 @@ impl FrameBuilder {
                             //Note: no need to add the layer for resolve, all layers get resolved
                         }
 
-                        // Create a task for the layer mask, if needed,
-                        // i.e. if there are rounded corners or image masks for the layer.
-                        clip_info_stack.push((sc_index, clip_info.clone()));
+                        if clip_info.is_some() {
+                            // Create a task for the layer mask, if needed,
+                            // i.e. if there are rounded corners or image masks for the layer.
+                            clip_info_stack.push((sc_index, clip_info.clone()));
+                        }
                     }
 
                 }
@@ -2524,8 +2526,10 @@ impl FrameBuilder {
                     let sc_index = *layer_stack.last().unwrap();
                     let layer = &mut self.layer_store[sc_index.0];
                     if layer.can_contribute_to_scene() {
-                        if layer.clip_cache_info.is_some() {
-                            clip_info_stack.pop().unwrap();
+                        if let Some(ref clip_info) = layer.clip_cache_info {
+                            if clip_info.is_some() {
+                                clip_info_stack.pop().unwrap();
+                            }
                         }
                     }
 
